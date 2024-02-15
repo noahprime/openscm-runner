@@ -1,0 +1,3 @@
+# Ignore temp ini and csv files
+*.ini
+*.csv

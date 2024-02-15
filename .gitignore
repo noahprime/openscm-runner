@@ -3,6 +3,7 @@
 
 # Notebooks
 *.ipynb
+!hector_notebook.ipynb
 
 # Databases
 *.db
@@ -155,6 +156,7 @@ ENV/
 env.bak/
 venv.bak/
 venv3.bak/
+pyvenv.cfg
 
 # Spyder project settings
 .spyderproject
