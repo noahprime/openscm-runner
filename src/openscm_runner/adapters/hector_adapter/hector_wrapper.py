@@ -11,6 +11,7 @@ from distutils import dir_util
 
 import numpy as np
 import pandas as pd
+import platform
 from scmdata import ScmRun, run_append
 
 from ...settings import config
@@ -36,22 +37,34 @@ class HectorWrapper:
         # Set paths
         self.input_dir = os.path.join(os.path.dirname(__file__), 'input')
         self.run_dir = os.path.join(self.input_dir, 'run_dir')
+        self.output_dir = os.path.join(self.input_dir, 'output')
 
         # Set scenario_data to be available by the object
         self.scenario_data = scenario_data.copy()
 
-        # Helper objects for writing Hector input files, and reading results
-        self.sfilewriter = SCENARIOFILEWRITER(self.input_dir, self.run_dir)
-        self.pamfilewriter = PARAMETERFILEWRITER(self.input_dir, self.run_dir)
-        self.resultsreader = HECTORREADER()
-
         # Optional, could use functions already made in Cicero to assert that we're working
-        # with data from a unique model/scenario pair (and know what they are)
-        # self.scen = _get_unique_index_values(scenariodata, "scenario")
-        # self.model = _get_unique_index_values(scenariodata, "model")
+        # with data from a unique model/scenario/region groups (and know what they are)
+        self.region = scenario_data.index[0][1]
+        self.scenario = scenario_data.index[0][2]
+        self.model = scenario_data.index[0][0]
 
-        # Create the scenario file
-        self.sfilewriter.write_scenario_file(scenario_data)
+        # Current Run .ini File Name
+        self.cur_run_ini_fn = f'{self.model}_{self.region}_{self.scenario}_cfg.ini'
+
+        # Current Run emissions file name
+        self.cur_run_emis_fn = f'{self.model}_{self.region}_{self.scenario}_emis.csv'
+
+        # Output file name
+        self.output_fn = f'outputstream_{self.model}_{self.region}_{self.scenario}.csv'
+
+        # Helper objects for writing Hector input files, and reading results
+        self.sfilewriter = SCENARIOFILEWRITER(self.input_dir, self.run_dir, self.cur_run_emis_fn)
+        self.pamfilewriter = PARAMETERFILEWRITER(self.input_dir, self.run_dir, self.cur_run_ini_fn, self.cur_run_emis_fn)
+        self.resultsreader = HECTORREADER(self.output_dir, self.output_fn)
+
+        # Create the scenario file, save end_year for later use
+        self.end_year = self.sfilewriter.write_scenario_file(scenario_data)
+
 
     def run_over_cfgs(self, cfgs, output_variables):
         """
@@ -65,6 +78,7 @@ class HectorWrapper:
 
         # For each entry in cfgs
             # Potentially need to edit/create new ini file (unless can be given as command line arguments)
+            # Copy historical emissions file to run directory
             # Call Hector executable with this run's ini file
                 # executable = _get_executable(self.rundir)
                 # call = f"{executable} {hector ini file}"
@@ -79,30 +93,50 @@ class HectorWrapper:
             # Turn output Hector data into ScmRun object (see the list of output variables below, but filter to only the ones we need to return)
             # Add new ScmRun object to list of runs
 
-        for cfg in cfgs:
+        for i, cfg in enumerate(cfgs):
             # Write the ini file
-            self.pamfilewriter.write_parameterfile(cfg, self.scenario_data)
+            self.pamfilewriter.write_parameterfile(cfg, self.region, self.scenario, self.model, self.end_year)
 
             # Get the hector executable file
             executable = self._get_executable()
+
+            # param file with relative path
+            param_file = os.path.join(self.run_dir, self.cur_run_ini_fn)
+
+            # Call string
+            call = f'{executable} {param_file}'
+
+            # Call executable
+            subprocess.check_call(
+                call,
+                cwd=self.input_dir,
+                shell=True
+            )
+
+            # Read Output File
+            run = self.resultsreader(i, output_variables, self.region, self.scenario, self.model)
+
+            # Append run to list of runs
+            runs.append(run)
+
+            # TODO: Clean Temp Dirs
 
 
         # Return list of runs using ScmRun append function
         return run_append(runs)
 
-        def cleanup_tempdirs():
-            """
-            Clean up temp data from run
-            """
-            ...
+    def cleanup_tempdirs(self):
+        """
+        Clean up temp data from run
+        """
+        ...
 
-        def _get_executable(self):
-            if platform.system() == "Windows":
-                executable = os.path.join(self.input_dir, "hector.exe")
-            else:
-                executable = os.path.join(self.input_dir, "hector")
-            return executable
-            ...
+    def _get_executable(self):
+        if platform.system() == "Windows":
+            executable = os.path.join(self.input_dir, "hector.exe")
+        else:
+            executable = os.path.join(self.input_dir, "hector")
+        return executable
         
 
 # These are all the variables we're expected to be able to output at minimum

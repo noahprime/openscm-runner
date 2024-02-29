@@ -38,7 +38,7 @@ class HECTOR(_Adapter):
     def _init_model(self): 
         pass
 
-    def _run(self, scenarios, cfgs, output_variables, output_config):
+    def _run(self, scenarios, cfgs, output_variables, output_config=None):
         """
         Run the model.
 

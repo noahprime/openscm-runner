@@ -7,6 +7,7 @@ from .ciceroscm_adapter import CICEROSCM
 from .ciceroscm_py_adapter import CICEROSCMPY
 from .fair_adapter import FAIR
 from .magicc7 import MAGICC7
+from .hector_adapter import HECTOR
 
 _registered_adapters: list[type[_Adapter]] = [
     CICEROSCM,
