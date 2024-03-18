@@ -38,15 +38,16 @@ class HectorWrapper:
         self.input_dir = os.path.join(os.path.dirname(__file__), 'input')
         self.run_dir = os.path.join(self.input_dir, 'run_dir')
         self.output_dir = os.path.join(self.input_dir, 'output')
+        self.logs_dir = os.path.join(self.input_dir, 'logs')
 
         # Set scenario_data to be available by the object
         self.scenario_data = scenario_data.copy()
 
         # Optional, could use functions already made in Cicero to assert that we're working
         # with data from a unique model/scenario/region groups (and know what they are)
-        self.region = scenario_data.index[0][1]
-        self.scenario = scenario_data.index[0][2]
-        self.model = scenario_data.index[0][0]
+        self.region = scenario_data.index[0][1].replace('/', '_')
+        self.scenario = scenario_data.index[0][2].replace('/', '_')
+        self.model = scenario_data.index[0][0].replace('/', '_')
 
         # Current Run .ini File Name
         self.cur_run_ini_fn = f'{self.model}_{self.region}_{self.scenario}_cfg.ini'
@@ -114,7 +115,7 @@ class HectorWrapper:
             )
 
             # Read Output File
-            run = self.resultsreader(i, output_variables, self.region, self.scenario, self.model)
+            run = self.resultsreader.read_results(i, output_variables, self.region, self.scenario, self.model)
 
             # Append run to list of runs
             runs.append(run)
@@ -129,6 +130,27 @@ class HectorWrapper:
         """
         Clean up temp data from run
         """
+        # Clean up run directory
+        self._clean_dir('run_dir')
+
+        # Clean up output directory
+        self._clean_dir('output')
+
+        # Clean up logs directory
+        self._clean_dir('logs')
+        ...
+
+    def _clean_dir(self, dir_to_clean):
+        """
+        Remove files in given directory in input folder
+        """
+        for file_name in os.listdir(os.path.join(self.input_dir, dir_to_clean)):
+            if file_name != '.gitignore':
+                file_path = os.path.join(self.input_dir, dir_to_clean, file_name)
+                try:
+                    os.unlink(file_path)
+                except Exception as e:
+                    print(f'Failed to delete {file_name}. Reason: {e}')
         ...
 
     def _get_executable(self):
