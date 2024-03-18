@@ -1,0 +1,46 @@
+rcmip_variable,rcmip_units,conversion factor notes,converstion factor,hector_variable,hector_unit,Notes
+Emissions|CO2|Fossil and Industrial,Mt CO2 year-1,(12.011/44.01) * 0.001,0.0002729152465,ffi_emissions,PgC year-1,"for the ffi_emissions these values must be strickly postivie, if there are negative emissions daccs_uptake is going to come into play"
+Emissions|CO2|MAGICC Fossil and Industrial,Mt CO2 year-1,(12.011/44.01) * 0.002,0.0002729152465,ffi_emissions,PgC year-1,
+Emissions|CO2|AFOLU,Mt CO2 year-1,(12.011/44.01) * 0.003,0.0002729152465,luc_emissions,PgC year-1,"for the luc_emissions these values must be strickly postivie, if there are negative emissions luc_uptake is going to come into play"
+Emissions|CO2|MAGICC AFOLU,Mt CO2 year-1,(12.011/44.01) * 0.004,0.0002729152465,luc_emissions,PgC year-1,
+Emissions|NH3,Mt,,1,NH3_emissions,Tg,
+Radiative Forcing|Anthropogenic|Albedo Change,W m-2,,1,Ftalbedo,W m-2,we might have a problem if there are two of these being read in... should probably only be one!
+Effective Radiative Forcing|Anthropogenic|Albedo Change,W m-2,,1,Ftalbedo,W m-2,
+Emissions|Sulfur,Mt SO2 year-1,(32.056/64.066)1000 ,500.359,SO2_emissions,Gg S year-1,
+Radiative Forcing|Natural|Volcanic,W m-2,,1,SV,W m-2,once again there should only be one of these varibales being red in 
+Effective Radiative Forcing|Natural|Volcanic,W m-2,,1,SV,W m-2,
+Emissions|CH4,Mt CH4 year-1,,1,CH4_emissions,Tg CH4 year-1,
+Emissions|NOx,Mt NOx year-1,(14.007/46.007)*1,0.3044537,NOX_emissions,Tg N year-1,
+Emissions|CO,Mt CO year-1,,1,CO_emissions,Tg CO year-1,
+Emissions|VOC,Mt VOC year-1,,1,NMVOC_emissions,Tg NMVOC year-1,
+Emissions|N2O,kt N2O year-1,(14.007/44.013) *0.001,0.0003182469,N2O_emissions,Tg N year-1,
+Emissions|BC,Mt BC year-1,,1,BC_emissions,Tg year-1,
+Emissions|OC,Mt OC year-1,,1,OC_emissions,Tg year-1,
+Emissions|F-Gases|HFC|HFC125,ppt,,1,HFC125_emissions,ppt,
+Emissions|F-Gases|HFC|HFC134a,ppt,,1,HFC134a_emissions,ppt,
+Emissions|F-Gases|HFC|HFC143a,ppt,,1,HFC143a_emissions,ppt,
+Emissions|F-Gases|HFC|HFC227ea,ppt,,1,HFC227ea_emissions,ppt,
+Emissions|F-Gases|HFC|HFC23,ppt,,1,HFC23_emissions,ppt,
+Emissions|F-Gases|HFC|HFC245fa,ppt,,1,HFC245fa_emissions,ppt,
+Emissions|F-Gases|HFC|HFC32,ppt,,1,HFC32_emissions,ppt,
+Emissions|F-Gases|HFC|HFC365mfc,ppt,( 794.0 / 1030.0 ),0.7708738,HFC245fa_emissions,ppt,converted to a known hector HCF then aggregated with other emissions
+Emissions|F-Gases|HFC|HFC4310mee,ppt,,1,HFC4310_emissions,ppt,
+Emissions|F-Gases|PFC|C2F6,ppt,,1,C2F6_emissions,ppt,
+Emissions|F-Gases|PFC|CF4,ppt,,1,CF4_emissions,ppt,
+Emissions|F-Gases|SF6,ppt,,1,SF6_emissions,ppt,
+Emissions|Montreal Gases|CCl4,ppt,,1,CCl4_emissions,ppt,
+Emissions|Montreal Gases|CFC|CFC11,ppt,,1,CFC11_emissions,ppt,
+Emissions|Montreal Gases|CFC|CFC113,ppt,,1,CFC113_emissions,ppt,
+Emissions|Montreal Gases|CFC|CFC114,ppt,,1,CFC114_emissions,ppt,
+Emissions|Montreal Gases|CFC|CFC115,ppt,,1,CFC115_emissions,ppt,
+Emissions|Montreal Gases|CFC|CFC12,ppt,,1,CFC12_emissions,ppt,
+Emissions|Montreal Gases|CH3Br,ppt,,1,CH3Br_emissions,ppt,
+Emissions|Montreal Gases|CH3CCl3,ppt,,1,CH3CCl3_emissions,ppt,
+Emissions|Montreal Gases|CH3Cl,ppt,,1,CH3Cl_emissions,ppt,
+Emissions|Montreal Gases|Halon1211,ppt,,1,halon1211_emissions,ppt,
+Emissions|Montreal Gases|Halon1301,ppt,,1,halon1301_emissions,ppt,
+Emissions|Montreal Gases|Halon2402,ppt,,1,halon2402_emissions,ppt,
+Emissions|F-Gases|HFC|HFC152a,ppt,( 124.0 / 1030.0 ),0.1203883,HFC245fa_emissions,ppt,converted to a known hector HCF then aggregated with it
+Emissions|F-Gases|HFC|HFC236fa,ppt,( 9810.0 / 4470.0 ),2.194631,HFC143a_emissions,ppt,converted to a known hector HCF then aggregated with it
+Emissions|Montreal Gases|HCFC142b,ppt,,1,HCFC142b_emissions,ppt,
+Emissions|Montreal Gases|HCFC22,ppt,,1,HCFC22_emissions,ppt,

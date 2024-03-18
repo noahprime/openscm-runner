@@ -9,88 +9,8 @@ import pandas as pd
 # Const, file name for the default Hector emissions/constraints
 DEFAULT_HECTOR_HIST_CONSTRAINTS_FN = 'default_emiss-constraints.csv'
 
-# TODO: This will be replaced by a mapping file
-AVAILABLE_KEYS_MAPPING = {
-    'ffi_emissions': ['simpleNbox'],
-    'luc_emissions': ['simpleNbox'],
-    'daccs_uptake': ['simpleNbox'],
-    'luc_uptake': ['simpleNbox'],
-    'BC_emissions': ['bc'],
-    'C2F6_constrain': None,
-    'C2F6_emissions': ['C2F6_halocarbon'],
-    'CCl4_constrain': None,
-    'CCl4_emissions': ['CCl4_halocarbon'],
-    'CF4_constrain': None,
-    'CF4_emissions': ['CF4_halocarbon'],
-    'CFC113_constrain': None,
-    'CFC113_emissions': ['CFC113_halocarbon'],
-    'CFC114_constrain': None,
-    'CFC114_emissions': ['CFC114_halocarbon'],
-    'CFC115_constrain': None,
-    'CFC115_emissions': ['CFC115_halocarbon'],
-    'CFC11_constrain': None,
-    'CFC11_emissions': ['CFC11_halocarbon'],
-    'CFC12_constrain': None,
-    'CFC12_emissions': ['CFC12_halocarbon'],
-    'CH3Br_constrain': None,
-    'CH3Br_emissions': ['CH3Br_halocarbon'],
-    'CH3CCl3_emissions': ['CH3CCl3_halocarbon'],
-    'CH3Cl_constrain': None,
-    'CH3Cl_emissions': ['CH3Cl_halocarbon'],
-    'CH4_constrain': None,
-    'CH4_emissions': ['CH4'],
-    'CO2_constrain': None,
-    'CO_emissions': ['OH', 'ozone'],
-    'HCFC141b_constrain': None,
-    'HCFC141b_emissions': ['HCFC141b_halocarbon'],
-    'HCFC142b_constrain': None,
-    'HCFC142b_emissions': ['HCFC142b_halocarbon'],
-    'HCFC22_constrain': None,
-    'HCFC22_emissions': ['HCFC22_halocarbon'],
-    'HFC125_constrain': None,
-    'HFC125_emissions': ['HFC125_halocarbon'],
-    'HFC134a_constrain': None,
-    'HFC134a_emissions': ['HFC134a_halocarbon'],
-    'HFC143a_constrain': None,
-    'HFC143a_emissions': ['HFC143a_halocarbon'],
-    'HFC227ea_constrain': None,
-    'HFC227ea_emissions': ['HFC227ea_halocarbon'],
-    'HFC23_constrain': None,
-    'HFC23_emissions': ['HFC23_halocarbon'],
-    'HFC245_constrain': None,
-    'HFC245fa_emissions': ['HFC245fa_halocarbon'],
-    'HFC32_constrain': None,
-    'HFC32_emissions': ['HFC23_halocarbon'],
-    'HFC365_constrain': None,
-    'HFC365_emissions': None,
-    'HFC4310_constrain': None,
-    'HFC4310_emissions': ['HFC4310_halocarbon'],
-    'N2O_constrain': None,
-    'N2O_emissions': ['N2O'],
-    'NH3_emissions': ['nh3'],
-    'NMVOC_emissions': ['OH', 'ozone'],
-    'NOX_emissions': ['OH', 'ozone'],
-    'OC_emissions': ['oc'],
-    'RF_albedo': ['simpleNbox'],
-    'SF6_constrain': None,
-    'SF6_emissions': ['SF6_halocarbon'],
-    'SO2_emissions': ['so2'],
-    'SV': ['so2'],
-    'halon1211_constrain': None,
-    'halon1211_emissions': ['halon1211_halocarbon'],
-    'halon1301_constrain': None,
-    'halon1301_emissions': ['halon1301_halocarbon'],
-    'halon2402_constrain': None,
-    'halon2402_emissions': ['halon2402_halocarbon']
-}
-
-
-def _unit_conversion():
-    """
-    Function from converting input scenario data into units used in Hector
-    TODO: Update this once mapping file completed
-    """
-    ...
+# Const, mapping file name to convert between rcmip and Hector variables
+OPENSCM_HECTOR_MAPPING_FN = 'openscm-hector-mapping.csv'
 
 
 class SCENARIOFILEWRITER:  # pylint: disable=too-few-public-methods
@@ -126,6 +46,10 @@ class SCENARIOFILEWRITER:  # pylint: disable=too-few-public-methods
         # Filter out data not available for use in Hector
         long_scenario_hector_data = self._keep_hector_variables(long_scenario_data)
 
+        # TODO: remove this line
+        num = long_scenario_hector_data._get_numeric_data()
+        num[num < 0] = 0
+
         # Read in hist emissions file primary data
         hist_emiss = pd.read_csv(os.path.join(self.input_dir, DEFAULT_HECTOR_HIST_CONSTRAINTS_FN), header=5, index_col=0)
 
@@ -133,10 +57,6 @@ class SCENARIOFILEWRITER:  # pylint: disable=too-few-public-methods
         with open(os.path.join(self.input_dir, DEFAULT_HECTOR_HIST_CONSTRAINTS_FN)) as file:
             file_reader = csv.reader(file)
             unit_row = [row for i, row in enumerate(file_reader) if i == 4][0]
-
-        # Convert units of openscm data to Hector
-        # TODO: Update once have mapping file
-        long_scenario_hector_data = _unit_conversion(long_scenario_hector_data, unit_row)
 
         # Convert to wide format used by Hector emissions files, columns being the variables
         hector_format_data = self._long_to_hector_format(long_scenario_hector_data)
@@ -158,27 +78,25 @@ class SCENARIOFILEWRITER:  # pylint: disable=too-few-public-methods
 
     def _keep_hector_variables(self, long_scenario_data):
         """
-        Filter out data not available for use in Hector and update variable names to Hector variable names
-        # TODO: Update with mapping file
+        Filter out data not available for use in Hector and update variable names to Hector variable names and units
         """
-        variables = long_scenario_data.reset_index()['variable']
-        keep_vec = [True] * len(variables)
-        new_variable_names = [None] * len(variables)
-        for i, var in enumerate(variables):
-            split_variable = var.split('|')
-            if len(split_variable) == 2:
-                em = split_variable[1]
-                variable_type = split_variable[0].lower()
-                new_variable_name = f'{em}_{variable_type}'
-            else:
-                new_variable_name = None
-            keep_vec[i] = (new_variable_name in AVAILABLE_KEYS_MAPPING.keys())
-            new_variable_names[i] = new_variable_name
-        long_scenario_hector_data = long_scenario_data.copy()
-        long_scenario_hector_data['variable'] = new_variable_names
-        long_scenario_hector_data = long_scenario_hector_data[keep_vec]
+        # Open mapping file
+        openscm_hector_mapping = pd.read_csv(os.path.join(self.input_dir, OPENSCM_HECTOR_MAPPING_FN))
 
-        return long_scenario_hector_data
+        # Keep only available hector variables
+        hector_scenario_data = pd.merge(long_scenario_data, openscm_hector_mapping, how='inner', left_on='variable', right_on='rcmip_variable')
+
+        # Convert variable values by multiplying by unit conversion factor
+        hector_scenario_data['value'] = hector_scenario_data['value'] * hector_scenario_data['converstion factor']
+
+        # Update variable name and units
+        hector_scenario_data['variable'] = hector_scenario_data['hector_variable']
+        hector_scenario_data['unit'] = hector_scenario_data['hector_unit']
+
+        # Keep relevant columns
+        hector_scenario_data = hector_scenario_data[['model', 'region', 'scenario', 'Date', 'unit', 'variable', 'value']]
+
+        return hector_scenario_data
 
     def _long_to_hector_format(self, long_scenario_hector_data):
         """
@@ -220,10 +138,9 @@ class SCENARIOFILEWRITER:  # pylint: disable=too-few-public-methods
         Create header and format of the emissions/constraints csv
         """
         header = ''
-        header += f'{self.cur_run_emis_fn}\n'
-        header += f'Generated with Hector openscm adapter\n'
+        header += f';{self.cur_run_emis_fn}\n'
+        header += f';Generated with Hector openscm adapter\n'
         units_string = ','.join(unit_row) + '\n'
         header += units_string
-        out = header + scenario_data.to_csv()
 
-        return out
+        return header
