@@ -66,6 +66,7 @@ class HECTOR(_Adapter):
         runs = []
         for run_input in runs_input:
             run = _execute_run(run_input['cfgs'], run_input['output_variables'], run_input['scenariodata'])
+            runs.append(run)
         
         # Append resulting runs using ScmRun append method
         result = scmdata.run_append([r for r in runs if r is not None])
