@@ -1,5 +1,5 @@
 """
-CICEROSCM_WRAPPER for parallelisation
+Hector Wrapper
 """
 import logging
 import os
@@ -32,7 +32,7 @@ class HectorWrapper:
         """
         Intialise Hector wrapper
         """
-        # TODO: Initialization steps for the given scenario
+        # Initialization steps for the given scenario
         
         # Set paths
         self.input_dir = os.path.join(os.path.dirname(__file__), 'input')
@@ -43,8 +43,7 @@ class HectorWrapper:
         # Set scenario_data to be available by the object
         self.scenario_data = scenario_data.copy()
 
-        # Optional, could use functions already made in Cicero to assert that we're working
-        # with data from a unique model/scenario/region groups (and know what they are)
+        # Extract the model/scenario/region combination
         self.region = scenario_data.index[0][1].replace('/', '_')
         self.scenario = scenario_data.index[0][2].replace('/', '_')
         self.model = scenario_data.index[0][0].replace('/', '_')
@@ -61,7 +60,7 @@ class HectorWrapper:
         # Helper objects for writing Hector input files, and reading results
         self.sfilewriter = SCENARIOFILEWRITER(self.input_dir, self.run_dir, self.cur_run_emis_fn)
         self.pamfilewriter = PARAMETERFILEWRITER(self.input_dir, self.run_dir, self.cur_run_ini_fn, self.cur_run_emis_fn)
-        self.resultsreader = HECTORREADER(self.output_dir, self.output_fn)
+        self.resultsreader = HECTORREADER(self.input_dir, self.output_dir, self.output_fn)
 
         # Create the scenario file, save end_year for later use
         self.end_year = self.sfilewriter.write_scenario_file(scenario_data)
@@ -76,23 +75,6 @@ class HectorWrapper:
 
         # Create empty list of runs
         runs = []
-
-        # For each entry in cfgs
-            # Potentially need to edit/create new ini file (unless can be given as command line arguments)
-            # Copy historical emissions file to run directory
-            # Call Hector executable with this run's ini file
-                # executable = _get_executable(self.rundir)
-                # call = f"{executable} {hector ini file}"
-
-                # LOGGER.debug("Call, %s", call)
-                # subprocess.check_call(
-                #     call,
-                #     cwd=self.rundir,
-                #     shell=True,  # nosec # have to use subprocess
-                # )
-            # Read in output files from hector
-            # Turn output Hector data into ScmRun object (see the list of output variables below, but filter to only the ones we need to return)
-            # Add new ScmRun object to list of runs
 
         for i, cfg in enumerate(cfgs):
             # Write the ini file
@@ -119,8 +101,6 @@ class HectorWrapper:
 
             # Append run to list of runs
             runs.append(run)
-
-            # TODO: Clean Temp Dirs
 
 
         # Return list of runs using ScmRun append function
