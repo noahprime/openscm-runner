@@ -14,6 +14,7 @@ _registered_adapters: list[type[_Adapter]] = [
     CICEROSCMPY,
     FAIR,
     MAGICC7,
+    HECTOR
 ]
 
 
